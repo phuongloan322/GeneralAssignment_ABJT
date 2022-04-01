@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+	<context:component-scan
+		base-package="faca.training" />
+	<context:annotation-config />
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/WEB-INF/views/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>
+	
+	<mvc:annotation-driven />
+	<mvc:resources mapping="/assets/**" location="/assets/" />
+
+	<!-- Khai bao data source (cau hinh connect database) -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"
+			value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
+		<property name="url"
+		
+			value="jdbc:sqlserver://DESKTOP-E754EJE\\SQLEXPRESS:1433;databaseName=GeneralAssignment_ATJB_opt1" />
+		<property name="username" value="sa" />
+		<property name="password" value="123456" />
+	</bean>
+
+	<!-- Khai bao entity manage de mapping Bean voi Entity -->
+	<bean id="entityManagerFactoryBean"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+
+		<!-- Load cau hinh connect DB  -->
+		<property name="dataSource" ref="dataSource" />
+
+		<!-- Khai bao package se quet mapping Bean voi Entity -->
+		<property name="packagesToScan" value="faca.training.bean" />
+
+		<!--Khai bao jpaVendorAdapter de thuc hien khoi tao Hibernate EntityManager -->
+		<property name="jpaVendorAdapter">
+			<bean
+				class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">create</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory"
+			ref="entityManagerFactoryBean" />
+	</bean>
+
+	<!-- Cau hinh de su dung cac annotation nhu @Transactional -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+</beans>
